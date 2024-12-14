@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map with Search</title>
+    <!-- Leaflet's CSS for styling the map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet Control Geocoder CSS for the search bar -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <style>
+        /* Set up the container for the map */
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Make sure the map takes up full screen */
+        #map {
+            height: 100vh; /* Full viewport height */
+        }
+
+        /* Additional style for the popup content */
+        .leaflet-popup-content {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Container for the map -->
+    <div id="map" class="map-container"></div>
+
+    <!-- Leaflet's JS library -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Leaflet Control Geocoder JS for the search bar -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script>
+        // Initialize the map with a center and zoom level
+        var map = L.map('map').setView([51.505, -0.09], 13);  // London coordinates
+
+        // Add OpenStreetMap tile layer (the background of the map)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add a marker at a specific position on the map
+        var marker = L.marker([51.5, -0.09]).addTo(map);
+
+        // Bind a popup to the marker
+        marker.bindPopup("<b>Hello World!</b><br>This is a popup.");
+
+        // Add another marker to the map
+        var marker2 = L.marker([51.515, -0.1]).addTo(map);
+        marker2.bindPopup("<b>Another Marker</b><br>Welcome to a second marker.");
+
+        // Optional: Add click event for the map to place a new marker dynamically
+        map.on('click', function(e) {
+            var clickedLat = e.latlng.lat.toFixed(3);
+            var clickedLng = e.latlng.lng.toFixed(3);
+            L.marker([e.latlng.lat, e.latlng.lng]).addTo(map)
+                .bindPopup("<b>New Marker</b><br>Latitude: " + clickedLat + "<br>Longitude: " + clickedLng)
+                .openPopup();
+        });
+
+        // Add the search bar (geocoder) to the map
+        var geocoder = L.Control.Geocoder.nominatim();
+        var control = L.Control.geocoder({
+            position: 'topright',
+            geocoder: geocoder
+        }).addTo(map);
+
+        // When a location is searched, zoom to the location and place a marker
+        control.on('markgeocode', function(e) {
+            var latlng = e.geocode.center;
+            var marker = L.marker(latlng).addTo(map);
+            marker.bindPopup("<b>Search Result</b><br>" + e.geocode.name).openPopup();
+            map.setView(latlng, 13);
+        });
+    </script>
+
+</body>
+</html>
